@@ -61,6 +61,8 @@ int main(void)
 	for (y = 0; y < 240; y++) {
 		for (x = 0; x < 320; x++) {
 			short temp2 = *(Video_Mem_ptr + (y << 9) + x);
+						printf("current time: \n", asctime(timeinfo);		//print time
+ 
 			*(Video_Mem_ptr + (y << 9) + x) = temp2;
 		}
 	}
