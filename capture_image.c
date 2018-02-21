@@ -25,9 +25,14 @@ int main(void)
 	char* buffer;
 	alt_up_char_buffer_init(alt_up_char_buffer_dev name));
 	char message = 0xff;
-	asd
 	
-	
+	/*
+	* time
+	*/
+	time_t rawtimel
+	struct tm * timeinfo;
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);			
 	
 	int x, y;
 
@@ -39,6 +44,7 @@ int main(void)
 		{
 			*(Video_In_DMA_ptr + 3) = 0x0;			// Disable the video to capture one frame
 			alt_up_char_buffer_string(buffer, message, 10, 100); //draw random message 
+			printf("current time: \n", asctime(timeinfo);		//print time
 			while (*KEY_ptr != 0);				// wait for pushbutton KEY release
 			break;
 		}
