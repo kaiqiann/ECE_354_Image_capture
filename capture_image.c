@@ -1,5 +1,9 @@
 // #include "address_map_arm.h"
 //clean !
+
+#include "time.h"
+#include "stdio.h"
+
 #define KEY_BASE              0xFF200050
 #define VIDEO_IN_BASE         0xFF203060
 #define FPGA_ONCHIP_BASE      0xC8000000
@@ -19,15 +23,31 @@ int main(void)
 	volatile short * Video_Mem_ptr	= (short *) FPGA_ONCHIP_BASE;
 	volatile short * TXT	= (short *) TEXT;
 	int offset;
+	// time stampt use
 	char *text_ptr;
-
+	time_t mytime;
+	mytime = time(NULL);
+	text_ptr = ctime(&mytime);
+	
 	int x, y;
 
 	*(Video_In_DMA_ptr + 3)	= 0x4;				// Enable the video
 
-	text_ptr = "hello";
-	printf("%s\n",text_ptr);
-	offset = (0 << 7) + 1;
+
+	while (1)
+	{
+		if (*KEY_ptr != 0)						// check if any KEY was pressed
+		{
+			*(Video_In_DMA_ptr + 3) = 0x0;			// Disable the video to capture one frame
+			while (*KEY_ptr != 0);				// wait for pushbutton KEY release
+			break;
+		}
+	}
+	/*
+	* adding text 
+	*/
+	printf("%s",text_ptr);
+	offset = (25 << 7) + 1;
 	while ( *(text_ptr) )
 	{
 		*(TXT + offset) = *(text_ptr); // write to the character buffer
@@ -38,16 +58,7 @@ int main(void)
 	
 	
 	
-	while (1)
-	{
-		if (*KEY_ptr != 0)						// check if any KEY was pressed
-		{
-			*(Video_In_DMA_ptr + 3) = 0x0;			// Disable the video to capture one frame
-			while (*KEY_ptr != 0);				// wait for pushbutton KEY release
-			break;
-		}
-	}
-
+	
 	while (1)
 	{
 		if (*KEY_ptr != 0)						// check if any KEY was pressed
@@ -55,7 +66,7 @@ int main(void)
 			break;
 		}
 	}
-
+		
 	for (y = 0; y < 240; y++) {
 		for (x = 0; x < 320; x++) {
 			short temp2 = *(Video_Mem_ptr + (y << 9) + x);
