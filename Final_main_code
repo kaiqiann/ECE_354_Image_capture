@@ -1,3 +1,104 @@
+// #include "address_map_arm.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+
+#define KEY_BASE              0xFF200050
+#define VIDEO_IN_BASE         0xFF203060
+#define FPGA_ONCHIP_BASE      0xC8000000
+#define TEXT				  0xC9000000
+#define EDGE_DETECTION_BASE   0xFF203070
+
+
+/* This program demonstrates the use of the D5M camera with the DE1-SoC Board
+ * It performs the following: 
+ *  1. Capture one frame of video when any key is pressed.
+ *  2. Display the captured frame when any key is pressed.        
+*/
+/* Note: Set the switches SW1 and SW2 to high and rest of the switches to low for correct exposure timing while compiling and the loading the program in the Altera Monitor program.
+*/
+int main(void)
+{
+    volatile int * KEY_ptr          = (int *) KEY_BASE;
+    volatile int * Video_In_DMA_ptr = (int *) VIDEO_IN_BASE;
+    volatile short * Video_Mem_ptr  = (short *) FPGA_ONCHIP_BASE;
+	volatile int * Edge_Detect_ptr  = (int *) EDGE_DETECTION_BASE;
+    volatile short * TXT	= (short *) TEXT;
+
+    int counter = 0;
+    int offset= (7<<1)+ 1;
+    *(Video_In_DMA_ptr + 3) = 0x4;              // Enable the video
+    *(Edge_Detect_ptr ) = 0x1;				//Enable the edge detction
+	
+	int x,y;
+	char *C, *text_ptr ;
+	text_ptr = "Counter: ";
+	
+	char* combine(char* a, char* b){
+		char src[100], dest[100];
+		strcpy(src, a);
+		strcpy(dest,b);
+		strcat(dest,src);
+		return dest;
+	}
+
+    while (1)
+    {
+        if (*KEY_ptr != 0)                      // check if any KEY was pressed
+        {
+            *(Video_In_DMA_ptr + 3) = 0x0;          // Disable the video to capture one frame
+            counter ++;
+			sprintf(C, "%d", counter);
+			text_ptr = combine((char*)C , (char*)text_ptr);
+            while (*KEY_ptr != 0);              // wait for pushbutton KEY release
+            break;
+        }
+    }
+
+	while ( *(text_ptr) )
+            {
+                *(TXT + offset) = *(text_ptr); // write to the character buffer
+                ++text_ptr;
+                ++offset;
+            }
+
+    
+    while (1)
+    {
+        if (*KEY_ptr != 0)                      // check if any KEY was pressed
+        {
+            break;
+        }
+    }
+    
+    
+    for (y = 0; y < 240; y++) {
+        for (x = 0; x < 320; x++) {
+            short temp2 = *(Video_Mem_ptr + (y << 9) + x);
+			/*short diff1  = temp2 - *(Video_Mem_ptr + ((y+1) << 9) + x);
+			short diff2  = temp2 - *(Video_Mem_ptr + ((y-1) << 9) + x);
+			short diff3  = temp2 - *(Video_Mem_ptr + (y << 9) + (x+1));
+			short diff4  = temp2 - *(Video_Mem_ptr + (y << 9) + (x-1));
+			if(diff1 > 4000 ){
+				temp2 = 63488;
+			}
+			else if(diff3 > 2800 ){
+				temp2 = 63488;
+			}*/
+			
+            if(temp2 > 8210){
+                temp2 = 0;
+            }
+            else if(temp2 < 8210){
+                temp2 = 0xFFFF;
+            }
+            *(Video_Mem_ptr + (y << 9) + x) = temp2;
+        }
+        printf("\n");
+    }
+
+}
+
 int main(void){												//Da main code
 	char* welcome = "pick a switch an press KEY";
 	char* t = "SW3 -> timestamp";
