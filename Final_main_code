@@ -1,129 +1,64 @@
-// #include "address_map_arm.h"
-#include "stdio.h"
-#include "time.h"
-#define KEY_BASE              0xFF200050
-#define VIDEO_IN_BASE         0xFF203060
-#define FPGA_ONCHIP_BASE      0xC8000000
-#define TEXT				  0xC9000000
-#define SW_BASE				  0xFF200040 
-/* This program demonstrates the use of the D5M camera with the DE1-SoC Board
- * It performs the following: 
- * 	1. Capture one frame of video when any key is pressed.
- * 	2. Display the captured frame when any key is pressed.		  
-*/
-
-/*
- * Global Variables
- */
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////NIOS flags and buffer///////////////////////////////////
-	volatile int * KEY_ptr				= (int *) KEY_BASE;
-	volatile int * Video_In_DMA_ptr	= (int *) VIDEO_IN_BASE;
-	volatile short * Video_Mem_ptr	= (short *) FPGA_ONCHIP_BASE;
-	volatile short * TXT	= (short *) TEXT;
-	volatile int * SW_ptr				= (int *) SW_BASE;
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////Conley's global/////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////Kai's global/////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////Gongtao's global///////////////////////////////////////// 
-///////////////////////////////////////////////////////////////////////////////
-
- 
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////Conley's functions//////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////Kai's functions//////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////Gongtao's functions//////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-int time(){										// write current time to the screen 
-	int offset = (25 << 7) + 1; 				// place of the text 
-	// time stampt use
-	char *text_ptr;
-	time_t mytime;
-	mytime = time(NULL);
-	text_ptr = ctime(&mytime);					// time text 
+int main(void){												//Da main code
+	char* welcome = "pick a switch an press KEY";
+	char* t = "SW3 -> timestamp";
+	char* c = "SW4 -> image count";
+	char* ro = "SW5 -> rotate";
+	char* mir = "SW6 -> mirror";
+	char* inv = "SW8 -> invert";
+	int offset;
 	
-*(Video_In_DMA_ptr + 3) = 0x0;			// Disable the video to capture one frame
-	
-	while ( *(text_ptr) )
+	offset = ( 1 << 7) + 1; 
+	while ( *(welcome) )
 	{
-		*(TXT + offset) = *(text_ptr); // write to the character buffer
+		*(TXT + offset) = *(welcome); // write to the character buffer
 		printf("%s",*(TXT + offset));
-		++text_ptr;
+		++welcome;
+		++offset;
+	}
+	offset = ( 2 << 7) + 1; 
+	while ( *(t) )
+	{
+		*(TXT + offset) = *(t); // write to the character buffer
+		printf("%s",*(TXT + offset));
+		++t;
+		++offset;
+	}
+	offset = ( 1 << 7) + 1; 
+	while ( *(c) )
+	{
+		*(TXT + offset) = *(c); // write to the character buffer
+		printf("%s",*(TXT + offset));
+		++c;
+		++offset;
+	}
+	offset = ( 1 << 7) + 1; 
+	while ( *(ro) )
+	{
+		*(TXT + offset) = *(ro; // write to the character buffer
+		printf("%s",*(TXT + offset));
+		++ro;
+		++offset;
+	}
+	offset = ( 1 << 7) + 1; 
+	while ( *(mir) )
+	{
+		*(TXT + offset) = *(mir); // write to the character buffer
+		printf("%s",*(TXT + offset));
+		++mir;
+		++offset;
+	}
+	offset = ( 1 << 7) + 1; 
+	while ( *(inv) )
+	{
+		*(TXT + offset) = *(inv); // write to the character buffer
+		printf("%s",*(TXT + offset));
+		++inv;
 		++offset;
 	}
 	
-}
- 
-/*
-* main code below, image() and  main()
-*/
-
-int image(){
-															//TODO,fill in the blanks 
-	*(Video_In_DMA_ptr + 3)	= 0x4;				// Enable the video every time 
-	while (1)
-	{
-		if (*KEY_ptr != 0)						// check if any KEY was pressed
-		{	
-			if(*SW_ptr == 4 ){					// SW3, time stamp
-				time();							//writting time to the screen
-				while(*KEY_ptr == 0 );			//wait for KEY press to end this cycle 
-				return 0;
-			}
-			else if(*SW_ptr == 8){				// SW4, image count 
-			
-			}
-			else if(*SW_ptr == 16){				// SW5, rotate 
-				
-			}
-			else if(*SW_ptr == 32){				// SW6, mirror 
-				
-			}
-			else if(*SW_ptr == 64){				// SW7, invert
-			
-			}
-			
-			
-		}
-	}													
-															
-															
-	return 0;
-}
-
-
-
-
-
-
-int main(void){												//Da main code
-	
-	
+	/*
+	* HERE comes da main code 
+	*/
 	while(1){
 		
 		image();
