@@ -1,3 +1,92 @@
+// #include "address_map_arm.h"
+//clean !
+#define KEY_BASE              0xFF200050
+#define VIDEO_IN_BASE         0xFF203060
+#define FPGA_ONCHIP_BASE      0xC8000000
+#define ROW					  240
+#define COL					  320
+short arr [240][320];
+/* This program demonstrates the use of the D5M camera with the DE1-SoC Board
+ * It performs the following: 
+ * 	1. Capture one frame of video when any key is pressed.
+ * 	2. Display the captured frame when any key is pressed.		  
+*/
+/* Note: Set the switches SW1 and SW2 to high and rest of the switches to low for correct exposure timing while compiling and the loading the program in the Altera Monitor program.
+*/
+
+void Mswap (int a, int b, int c, int d ){
+	short temp = arr[a][b];
+	*(Video_Mem_ptr + (a << 9) + b) = arr[c][d];
+	*(Video_Mem_ptr + (c << 9) + d) = temp;
+}
+void rotate180 (){
+	for (y = 0; y < 240/2; y++) {
+		for (x = 0; x < 320; x++) {	
+			Mswap(y,x,ROW-1-y,COL-1-x);
+			printf("ads");
+		}
+	}
+}
+void mirror (){
+	for (y = 0; y < 240; y++) {
+		for (x = 0; x < 320/2;x++) {		
+			Mswap(y,x,y,COL-1-x);
+		}
+	}
+}
+
+int main(void)
+{
+	volatile int * KEY_ptr				= (int *) KEY_BASE;
+	volatile int * Video_In_DMA_ptr	= (int *) VIDEO_IN_BASE;
+	volatile short * Video_Mem_ptr	= (short *) FPGA_ONCHIP_BASE;
+
+	int x, y;
+	
+	/* added variable */
+	
+
+	*(Video_In_DMA_ptr + 3)	= 0x4;				// Enable the video
+
+	while (1)
+	{
+		if (*KEY_ptr != 0)						// check if any KEY was pressed
+		{
+			*(Video_In_DMA_ptr + 3) = 0x0;			// Disable the video to capture one frame
+			//save to array;
+			for (y = 0; y < 240; y++) {
+				for (x = 0; x < 320; x++) {
+					short temp2 = *(Video_Mem_ptr + ((y) << 9) + (x));
+					arr[y][x] = temp2;		
+				}	
+			}
+			while (*KEY_ptr != 0);				// wait for pushbutton KEY release
+			break;
+		}
+	}
+
+	while (1)
+	{
+		if (*KEY_ptr != 0)						// check if any KEY was pressed
+		{
+			rotate180();
+			while (*KEY_ptr != 0);
+			break;
+		}
+	}
+	while (1)
+	{
+		if (*KEY_ptr != 0)						// check if any KEY was pressed
+		{
+			mirror();
+			while (*KEY_ptr != 0);
+			break;
+		}
+	}
+	
+	
+}
+
 int main(void){												//Da main code
 	char* welcome = "pick a switch an press KEY";
 	char* t = "SW3 -> timestamp";
@@ -66,3 +155,5 @@ int main(void){												//Da main code
 	}
 	return 0;												//shouldn't reach here 
 }
+
+
