@@ -111,7 +111,7 @@ void diff(){
     for (y = 0; y < 240; y++) {
         for (x = 0; x < 320; x++) {
              temp = *(Video_Mem_ptr + ((y) << 9) + (x));
-             if(arr[y][x]!=temp){
+             if(arr[y][x]-temp>50){
              temp = 63488;        //all red
              }
             *(Video_Mem_ptr + ((y) << 9) + (x)) =temp; 
